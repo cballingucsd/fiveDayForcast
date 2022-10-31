@@ -1,11 +1,13 @@
 //establish global variables
 var userFormEl = document.querySelector('#user-form');
 var pastSearchButtonsEl = document.querySelector('#past-search-buttons');
+var lastSearchButton = document.querySelector('#last-search-button');
 var nameInputEl = document.querySelector('#citySearch');
 var repoContainerEl = document.querySelector('#repos-container');
 var repoSearchTerm = document.querySelector('#repo-search-term');
 var latSearch = '';
 var lonSearch = '';
+var lastCitySearch = '';
 
 //get user input for search
 var formSubmitHandler = function (event) {
@@ -30,6 +32,7 @@ var getCityLocation = function (citySearch) {
   //get lat and long from GeoCoding API
   var apiGeoUrl = 'http://api.openweathermap.org/geo/1.0/direct?q=' + citySearch + '&limit=1&appid=cf259c950032d53080fc7de622b6f5d3';
 
+lastCitySearch = citySearch;
   fetch(apiGeoUrl)
     .then(function (response) {
       if (response.ok) {
@@ -118,7 +121,43 @@ var displayRepos = function (repos, searchTerm) {
     repoEl.appendChild(statusEl);
 
     repoContainerEl.appendChild(repoEl);
+
   }
+  saveLastSearch();
 };
 
+function saveLastSearch() {
+  // Save related form data as an object
+  console.log("test");
+  console.log(lastCitySearch);
+  var lastSearch = lastCitySearch;
+  // Use .setItem() to store object in storage and JSON.stringify to convert it as a string
+  localStorage.setItem("lastSearch", JSON.stringify(lastSearch));
+}
+
+function renderLastSearch() {
+  // Use JSON.parse() to convert text to JavaScript object
+  var viewLastGrade = JSON.parse(localStorage.getItem("lastSearch"));
+  // Check if data is returned, if not exit out of the function
+  if (viewLastGrade !== null) {
+  document.getElementById("last-search").innerHTML = viewLastGrade;
+  } else {
+    return;
+  }
+}
+
 userFormEl.addEventListener('submit', formSubmitHandler);
+
+lastSearchButton.addEventListener("click", function(event) {
+event.preventDefault();
+saveLastSearch();
+renderLastSearch();
+});
+
+// The init() function fires when the page is loaded 
+function init() {
+  // When the init function is executed, the code inside renderLastGrade function will also execute
+  renderLastSearch();
+}
+init();
+
